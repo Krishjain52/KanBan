@@ -15,11 +15,11 @@ class TaskController {
       
       const io = req.app.get('io');
       if (io && bId) {
-         io.to(\`board:\${bId}\`).emit('task:created', { task, columnId: data.columnId });
+         io.to(`board:${bId}`).emit('task:created', { task, columnId: data.columnId });
       } else if (io && !bId) {
          // Fallback by fetching the boardid
          const existing = await taskService.getTask(task.id, req.user.id);
-         io.to(\`board:\${existing.column.boardId}\`).emit('task:created', { task, columnId: data.columnId });
+         io.to(`board:${existing.column.boardId}`).emit('task:created', { task, columnId: data.columnId });
       }
       res.status(201).json(task);
     } catch (err) {
@@ -35,7 +35,7 @@ class TaskController {
       const io = req.app.get('io');
       if (io) {
           const existing = await taskService.getTask(task.id, req.user.id);
-          io.to(\`board:\${existing.column.boardId}\`).emit('task:updated', task);
+          io.to(`board:${existing.column.boardId}`).emit('task:updated', task);
       }
       res.json(task);
     } catch (err) {
@@ -50,7 +50,7 @@ class TaskController {
       
       const io = req.app.get('io');
       if (io) {
-          io.to(\`board:\${existing.column.boardId}\`).emit('task:deleted', { taskId: req.params.id, columnId: existing.columnId });
+          io.to(`board:${existing.column.boardId}`).emit('task:deleted', { taskId: req.params.id, columnId: existing.columnId });
       }
       res.json({ message: 'Deleted successfully' });
     } catch (err) {
@@ -66,7 +66,7 @@ class TaskController {
       
       const io = req.app.get('io');
       if (io && result.boardId) {
-          io.to(\`board:\${result.boardId}\`).emit('task:moved', { 
+          io.to(`board:${result.boardId}`).emit('task:moved', { 
             task: result.movedTask, 
             sourceColumnId: result.sourceColumnId, 
             targetColumnId, 

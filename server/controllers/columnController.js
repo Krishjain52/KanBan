@@ -8,7 +8,7 @@ class ColumnController {
       
       const io = req.app.get('io');
       if (io && boardId) {
-        io.to(\`board:\${boardId}\`).emit('column:created', column);
+        io.to(`board:${boardId}`).emit('column:created', column);
       }
       res.status(201).json(column);
     } catch (err) {
