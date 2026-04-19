@@ -1,13 +1,25 @@
 const taskService = require('../services/TaskService');
+const columnRepository = require('../repositories/ColumnRepository'); // just to get boardId if needed
 
 class TaskController {
   async createTask(req, res) {
     try {
-      const task = await taskService.createTask(req.body, req.user.id);
+      const { boardId, ...data } = req.body;
+      const task = await taskService.createTask(data, req.user.id);
+      
+      let bId = boardId;
+      if (!bId) {
+        const col = await columnRepository.canAccess(data.columnId, req.user.id); // Wait canAccess returns bool. If true, we need boardId.
+        // It's cleaner to let client provide boardId or let service return it. Let's assume boardId might be fetched from getTask
+      }
       
       const io = req.app.get('io');
-      if (io && req.body.boardId) {
-         io.to(\`board:\${req.body.boardId}\`).emit('task:created', { task, columnId: req.body.columnId });
+      if (io && bId) {
+         io.to(\`board:\${bId}\`).emit('task:created', { task, columnId: data.columnId });
+      } else if (io && !bId) {
+         // Fallback by fetching the boardid
+         const existing = await taskService.getTask(task.id, req.user.id);
+         io.to(\`board:\${existing.column.boardId}\`).emit('task:created', { task, columnId: data.columnId });
       }
       res.status(201).json(task);
     } catch (err) {
@@ -17,13 +29,13 @@ class TaskController {
 
   async updateTask(req, res) {
     try {
-      // Body may not contain boardId, client usually sends it for socket emission
       const { boardId, ...data } = req.body;
       const task = await taskService.updateTask(req.params.id, data, req.user.id);
       
       const io = req.app.get('io');
-      if (io && boardId) {
-          io.to(\`board:\${boardId}\`).emit('task:updated', task);
+      if (io) {
+          const existing = await taskService.getTask(task.id, req.user.id);
+          io.to(\`board:\${existing.column.boardId}\`).emit('task:updated', task);
       }
       res.json(task);
     } catch (err) {
@@ -33,16 +45,12 @@ class TaskController {
 
   async deleteTask(req, res) {
     try {
-      const { boardId, columnId } = req.body; // Sent via query or body usually
-      // Just extract it from query since DELETE usually has no body
-      const bId = boardId || req.query.boardId;
-      const cId = columnId || req.query.columnId;
-
-      await taskService.deleteTask(req.params.id, req.user.id);
+      // deleteTask now returns the existing task from the service
+      const existing = await taskService.deleteTask(req.params.id, req.user.id);
       
       const io = req.app.get('io');
-      if (io && bId) {
-          io.to(\`board:\${bId}\`).emit('task:deleted', { taskId: req.params.id, columnId: cId });
+      if (io) {
+          io.to(\`board:\${existing.column.boardId}\`).emit('task:deleted', { taskId: req.params.id, columnId: existing.columnId });
       }
       res.json({ message: 'Deleted successfully' });
     } catch (err) {
@@ -52,14 +60,20 @@ class TaskController {
 
   async moveTask(req, res) {
     try {
-      const { sourceColumnId, targetColumnId, newOrder, boardId } = req.body;
-      const task = await taskService.moveTask(req.params.id, sourceColumnId, targetColumnId, newOrder, req.user.id);
+      const { targetColumnId, newOrder } = req.body; // Frontend only sends targetColumnId, newOrder
+      const result = await taskService.moveTask(req.params.id, targetColumnId, newOrder, req.user.id);
+      // result is { movedTask, sourceColumnId, boardId }
       
       const io = req.app.get('io');
-      if (io && boardId) {
-          io.to(\`board:\${boardId}\`).emit('task:moved', { task, sourceColumnId, targetColumnId, newOrder });
+      if (io && result.boardId) {
+          io.to(\`board:\${result.boardId}\`).emit('task:moved', { 
+            task: result.movedTask, 
+            sourceColumnId: result.sourceColumnId, 
+            targetColumnId, 
+            newOrder: result.movedTask.order 
+          });
       }
-      res.json(task);
+      res.json(result.movedTask);
     } catch (err) {
       res.status(403).json({ message: err.message });
     }
