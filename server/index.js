@@ -3,15 +3,14 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
-const { PrismaClient } = require('@prisma/client');
 
 const authRoutes = require('./routes/auth');
 const boardRoutes = require('./routes/boards');
 const columnRoutes = require('./routes/columns');
 const taskRoutes = require('./routes/tasks');
 const { initSocket } = require('./socket');
+const prisma = require('./config/db'); // for export
 
-const prisma = new PrismaClient();
 const app = express();
 const server = http.createServer(app);
 
@@ -32,7 +31,6 @@ app.use(express.json());
 
 // Make io available to routes
 app.set('io', io);
-app.set('prisma', prisma);
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -53,7 +51,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Initialize Socket.io handlers
-initSocket(io, prisma);
+initSocket(io);
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
