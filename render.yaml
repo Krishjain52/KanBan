@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: kanban-app
+    env: node
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: file:/data/prod.db
+      - key: JWT_SECRET
+        generateValue: true
+    disk:
+      name: sqlite-data
+      mountPath: /data
+      sizeGB: 1
