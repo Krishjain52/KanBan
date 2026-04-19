@@ -1,0 +1,164 @@
+.card {
+  position: relative;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: grab;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+  user-select: none;
+}
+
+.card:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+.card:hover .actions {
+  opacity: 1;
+}
+
+.dragging {
+  opacity: 0.35;
+  cursor: grabbing;
+}
+
+.overlay {
+  cursor: grabbing;
+  border-color: var(--accent);
+  background: var(--bg-hover);
+}
+
+/* Left priority stripe */
+.priorityStripe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+}
+
+.priority_LOW    { background: var(--priority-low-text); opacity: 0.7; }
+.priority_MEDIUM { background: var(--priority-medium-text); opacity: 0.8; }
+.priority_HIGH   { background: var(--priority-high-text); }
+.priority_URGENT { background: var(--priority-urgent-text); box-shadow: 0 0 6px rgba(235,87,87,0.5); }
+
+.body {
+  padding: 10px 10px 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.4;
+  padding-right: 40px; /* space for action buttons */
+}
+
+.description {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.priorityBadge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 100px;
+  border: 1px solid transparent;
+}
+
+.badge_LOW {
+  background: var(--priority-low);
+  color: var(--priority-low-text);
+  border-color: rgba(111, 207, 151, 0.2);
+}
+
+.badge_MEDIUM {
+  background: var(--priority-medium);
+  color: var(--priority-medium-text);
+  border-color: rgba(242, 201, 76, 0.2);
+}
+
+.badge_HIGH {
+  background: var(--priority-high);
+  color: var(--priority-high-text);
+  border-color: rgba(242, 153, 74, 0.2);
+}
+
+.badge_URGENT {
+  background: var(--priority-urgent);
+  color: var(--priority-urgent-text);
+  border-color: rgba(235, 87, 87, 0.25);
+}
+
+.assignee {
+  width: 20px;
+  height: 20px;
+  background: var(--accent-dim);
+  color: var(--accent-bright);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  margin-left: auto;
+}
+
+.actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.actionBtn {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.actionBtn:hover {
+  background: var(--bg-overlay);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.deleteBtn:hover {
+  background: rgba(235, 87, 87, 0.12);
+  color: var(--priority-urgent-text);
+  border-color: rgba(235, 87, 87, 0.3);
+}
