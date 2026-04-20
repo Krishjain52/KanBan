@@ -7,3 +7,4 @@ build/
 .prisma/
 *.db
 render.yaml
+render.yaml
