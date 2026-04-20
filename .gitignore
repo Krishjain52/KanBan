@@ -6,3 +6,4 @@ build/
 *.log
 .prisma/
 *.db
+render.yaml
