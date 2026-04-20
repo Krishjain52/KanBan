@@ -11,5 +11,7 @@ services:
         value: postgresql://neondb_owner:npg_O7aMNZsR5gEI@ep-muddy-art-am1q5z2x.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require
       - key: JWT_SECRET
         generateValue: true
-      - key: CLIENT_URL
-        value: https://kanban-kzii.onrender.com
+    disk:
+      name: sqlite-data
+      mountPath: /data
+      sizeGB: 1
